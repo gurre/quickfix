@@ -571,3 +571,15 @@ func BenchmarkRepeatingGroupRead(b *testing.B) {
 		_ = ParseMessageWithDataDictionary(msg, rawMsg, dict, dict)
 	}
 }
+
+func BenchmarkParseMessagePool(b *testing.B) {
+	// SOH = 0x01 is the FIX field delimiter
+	rawMsgStr := "8=FIX.4.2\x019=104\x0135=D\x0134=2\x0149=TW\x0152=20140515-19:49:56.659\x0156=ISLD\x0111=100\x0121=1\x0140=1\x0154=1\x0155=TSLA\x0160=00010101-00:00:00.000\x0110=039\x01"
+
+	for i := 0; i < b.N; i++ {
+		msg := AcquireMessage()
+		rawMsg := bytes.NewBufferString(rawMsgStr)
+		_ = ParseMessage(msg, rawMsg)
+		ReleaseMessage(msg)
+	}
+}

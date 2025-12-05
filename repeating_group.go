@@ -214,6 +214,14 @@ func (f *RepeatingGroup) Read(tv []TagValue) ([]TagValue, error) {
 		f.initCachedValues()
 	}
 	tagOrdering := f.tagOrder
+
+	// Pre-allocate groups slice to avoid repeated allocations during append.
+	if cap(f.groups) < expectedGroupSize {
+		f.groups = make([]*Group, 0, expectedGroupSize)
+	} else {
+		f.groups = f.groups[:0]
+	}
+
 	group := new(Group)
 	group.initWithOrdering(tagOrdering)
 	for len(tv) > 0 {
